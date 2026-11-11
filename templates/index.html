@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Jelajah Al-Qur'an</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            color: #f6f1e5;
+            background: #10251f;
+            font-family: Georgia, "Times New Roman", serif;
+        }
+
+        header {
+            padding: 55px 20px 45px;
+            text-align: center;
+            background: radial-gradient(ellipse at top, #24604a, #10251f 70%);
+            border-bottom: 1px solid #c5a65b;
+        }
+
+        header h1 {
+            margin: 0 0 12px;
+            color: #e4c875;
+            font-size: clamp(32px, 6vw, 48px);
+        }
+
+        header p {
+            margin: 0;
+            color: #d2d8cc;
+            font: 16px Arial, sans-serif;
+        }
+
+        main {
+            width: min(820px, 92%);
+            margin: 36px auto;
+        }
+
+        .panel, .ayat {
+            padding: 24px;
+            background: #19372d;
+            border: 1px solid #42614d;
+            border-radius: 16px;
+        }
+
+        .panel {
+            box-shadow: 0 15px 40px #00000030;
+        }
+
+        form {
+            display: flex;
+            align-items: end;
+            gap: 14px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 9px;
+            color: #e4c875;
+            font: bold 14px Arial, sans-serif;
+        }
+
+        select {
+            width: 100%;
+            padding: 13px;
+            color: #f6f1e5;
+            background: #10251f;
+            border: 1px solid #66816c;
+            border-radius: 9px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 13px 20px;
+            color: #10251f;
+            background: #e4c875;
+            border: 0;
+            border-radius: 9px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover { background: #f0d991; }
+
+        .error {
+            margin-top: 16px;
+            padding: 13px;
+            color: #ffe4df;
+            background: #642f2b;
+            border-radius: 9px;
+            font-family: Arial, sans-serif;
+        }
+
+        .surat-info {
+            margin: 26px 0 18px;
+            padding: 26px;
+            text-align: center;
+            background: #214737;
+            border: 1px solid #c5a65b;
+            border-radius: 16px;
+        }
+
+        .surat-info h2 {
+            margin: 0 0 8px;
+            color: #e4c875;
+            font-size: 30px;
+        }
+
+        .surat-info p {
+            margin: 0;
+            color: #d2d8cc;
+            font: 15px Arial, sans-serif;
+        }
+
+        .ayat {
+            margin: 14px 0;
+            border-left: 4px solid #c5a65b;
+        }
+
+        .nomor-ayat {
+            display: inline-grid;
+            width: 36px;
+            height: 36px;
+            place-items: center;
+            color: #10251f;
+            background: #e4c875;
+            border-radius: 50%;
+            font: bold 14px Arial, sans-serif;
+        }
+
+        .arab {
+            margin: 24px 0;
+            color: #fff9e9;
+            font-size: 32px;
+            line-height: 2;
+            text-align: right;
+        }
+
+        .latin {
+            color: #d5c48e;
+            font-style: italic;
+            line-height: 1.8;
+        }
+
+        .terjemahan {
+            color: #f0eee6;
+            font: 16px/1.9 Arial, sans-serif;
+        }
+
+        footer {
+            padding: 24px;
+            color: #b9c4b8;
+            text-align: center;
+            font: 14px Arial, sans-serif;
+        }
+
+        footer a { color: #e4c875; }
+
+        @media (max-width: 520px) {
+            form {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            header { padding: 42px 16px; }
+            .arab { font-size: 27px; }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Jelajah Al-Qur'an</h1>
+        <p>Pilih surat untuk membaca ayat dan terjemahannya</p>
+    </header>
+
+    <main>
+        <section class="panel">
+            <form method="POST">
+                <div style="flex: 1;">
+                    <label for="surat">Pilih surat</label>
+                    <select name="surat" id="surat" required>
+                        {% for item in surat_list %}
+                            <option
+                                value="{{ item['nomor'] }}"
+                                {% if surat_detail and item['nomor']|string == surat_detail['nomor']|string %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ item['nomor'] }}. {{ item['namaLatin'] }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit">Tampilkan surat</button>
+            </form>
+
+            {% if error %}
+                <div class="error">{{ error }}</div>
+            {% endif %}
+        </section>
+
+        {% if surat_detail %}
+            <section class="surat-info">
+                <h2>{{ surat_detail['namaLatin'] }}</h2>
+                <p>{{ surat_detail['arti'] }} · {{ surat_detail['jumlahAyat'] }} ayat</p>
+            </section>
+
+            {% for ayat in surat_detail['ayat'] %}
+                <article class="ayat">
+                    <span class="nomor-ayat">{{ ayat['nomorAyat'] }}</span>
+                    <p class="arab" lang="ar" dir="rtl">{{ ayat['teksArab'] }}</p>
+                    <p class="latin">{{ ayat['teksLatin'] }}</p>
+                    <p class="terjemahan">{{ ayat['teksIndonesia'] }}</p>
+                </article>
+            {% endfor %}
+        {% endif %}
+    </main>
+
+    <footer>
+        Sumber data:
+        <a href="https://equran.id/" target="_blank">EQuran.id</a>
+    </footer>
+</body>
+</html>
